@@ -1,50 +1,71 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Canvas Drawing</title>
-</head>
-<body>
-  <canvas id="myCanvas"></canvas>
-  <button id="clearButton">Clear</button>
-  <button id="saveButton">Save</button>
-  <button id="openButton">Open</button>
-
-  <script>
-    const canvas = document.getElementById("myCanvas");
-    const ctx = canvas.getContext("2d");
-    const clearButton = document.getElementById("clearButton");
-    const saveButton = document.getElementById("saveButton");
-    const openButton = document.getElementById("openButton");
-
-    let isDrawing = false;
-    let x = 0;
-    let y = 0;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    clearButton.addEventListener("click", () => ctx.clearRect(0, 0, canvas.width, canvas.height));
-    saveButton.addEventListener("click", saveCanvas);
-    openButton.addEventListener("click", openCanvas);
-
-    canvas.addEventListener("mousedown", e => {
-      x = e.clientX;
-      y = e.clientY;
-      isDrawing = true;
-    });
-
-    canvas.addEventListener("mousemove", e => {
-      if (!isDrawing) return;
-      draw(x, y, e.clientX, e.clientY);
-      x = e.clientX;
-      y = e.clientY;
-    });
-
-    canvas.addEventListener("mouseup", () => (isDrawing = false));
-    canvas.addEventListener("mouseout", () => (isDrawing = false));
-
-    ctx.strokeStyle = "blue";
-    ctx.lineWidth = 1;
+  <head>
+    <title>Canvas Drawing</title>
+  </head>
+  <body>
+    <canvas id="myCanvas"></canvas>
+    <button id="clearButton">Clear</button>
+    <button id="saveButton">Save</button>
+    <button id="openButton">Open</button>
+    <button id="eraserButton">Eraser</button>
+    <button id="penButton">Pen</button>
+    
+    <script>
+      const canvas = document.getElementById("myCanvas");
+      const ctx = canvas.getContext("2d");
+      const clearButton = document.getElementById("clearButton");
+      const saveButton = document.getElementById("saveButton");
+      const openButton = document.getElementById("openButton");
+      const eraserButton = document.getElementById("eraserButton");
+      const penButton = document.getElementById("penButton");
+      
+      let isDrawing = false;
+      let isErasing = false;
+      let x = 0;
+      let y = 0;
+      
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      clearButton.addEventListener("click", () => ctx.clearRect(0, 0, canvas.width, canvas.height));
+      saveButton.addEventListener("click", saveCanvas);
+      openButton.addEventListener("click", openCanvas);
+      eraserButton.addEventListener("click", toggleEraser);
+      penButton.addEventListener("click", togglePen);
+      
+      canvas.addEventListener("touchstart", e => {
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+        isDrawing = true;
+      });
+      
+      canvas.addEventListener("touchmove", e => {
+        if (!isDrawing) return;
+        draw(x, y, e.touches[0].clientX, e.touches[0].clientY);
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+      });
+      
+      canvas.addEventListener("touchend", () => (isDrawing = false));
+      canvas.addEventListener("mousemove", e => {
+        if (!isDrawing) return;
+        draw(x, y, e.clientX, e.clientY);
+        x = e.clientX;
+        y = e.clientY;
+      });
+      
+      canvas.addEventListener("mousedown", e => {
+        x = e.clientX;
+        y = e.clientY;
+        isDrawing = true;
+      });
+      
+      canvas.addEventListener("mouseup", () => (isDrawing = false));
+      canvas.addEventListener("mouseout", () => (isDrawing = false));
+      
+      ctx.strokeStyle = "blue";
+      ctx.lineWidth = 1;
 
     function draw(x1, y1, x2, y2) {
       ctx.beginPath();
