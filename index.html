@@ -1,91 +1,118 @@
-<!DOCTYPE html>
 <html>
-  <head>
-    <title>Canvas Drawing</title>
-  </head>
-  <body>
-    <canvas id="myCanvas"></canvas>
-    <button id="clearButton">Clear</button>
-    <button id="saveButton">Save</button>
-    <button id="openButton">Open</button>
-    <button id="eraserButton">Eraser</button>
-    <button id="penButton">Pen</button>
-    
-    <script>
-      const canvas = document.getElementById("myCanvas");
-      const ctx = canvas.getContext("2d");
-      const clearButton = document.getElementById("clearButton");
-      const saveButton = document.getElementById("saveButton");
-      const openButton = document.getElementById("openButton");
-      const eraserButton = document.getElementById("eraserButton");
-      const penButton = document.getElementById("penButton");
-      
-      let isDrawing = false;
-      let isErasing = false;
-      let x = 0;
-      let y = 0;
-      
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      
-      clearButton.addEventListener("click", () => ctx.clearRect(0, 0, canvas.width, canvas.height));
-      saveButton.addEventListener("click", saveCanvas);
-      openButton.addEventListener("click", openCanvas);
-      eraserButton.addEventListener("click", toggleEraser);
-      penButton.addEventListener("click", togglePen);
-      
-      canvas.addEventListener("touchstart", e => {
-        x = e.touches[0].clientX;
-        y = e.touches[0].clientY;
-        isDrawing = true;
-      });
-      
-      canvas.addEventListener("touchmove", e => {
-        if (!isDrawing) return;
-        draw(x, y, e.touches[0].clientX, e.touches[0].clientY);
-        x = e.touches[0].clientX;
-        y = e.touches[0].clientY;
-      });
-      
-      canvas.addEventListener("touchend", () => (isDrawing = false));
-      canvas.addEventListener("mousemove", e => {
-        if (!isDrawing) return;
-        draw(x, y, e.clientX, e.clientY);
-        x = e.clientX;
-        y = e.clientY;
-      });
-      
-      canvas.addEventListener("mousedown", e => {
-        x = e.clientX;
-        y = e.clientY;
-        isDrawing = true;
-      });
-      
-      canvas.addEventListener("mouseup", () => (isDrawing = false));
-      canvas.addEventListener("mouseout", () => (isDrawing = false));
-      
-      ctx.strokeStyle = "blue";
-      ctx.lineWidth = 1;
-
-    function draw(x1, y1, x2, y2) {
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
+<head>
+  <style>
+    body {
+      overflow: hidden;
     }
+    #canvas {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <br />
+  <button id="clearButton">Löschen</button>
+  <button id="penButton">Stift</button>
+  <button id="eraserButton">Radiergummi</button>
+  <button id="saveButton">Speichern</button>
+  <button id="openButton">Öffnen</button>
+  <script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let isDrawing = false;
+let isErasing = false;
+let lastX = 0;
+let lastY = 0;
 
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+document.getElementById("clearButton").addEventListener("click", () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+document.getElementById("penButton").addEventListener("click", togglePen);
+
+document.getElementById("eraserButton").addEventListener("click", toggleEraser);
+
+document.getElementById("saveButton").addEventListener("click", saveCanvas);
+
+document.getElementById("openButton").addEventListener("click", openCanvas);
+
+canvas.addEventListener("touchstart", (event) => {
+  isDrawing = true;
+  const touch = event.touches[0];
+  lastX = touch.clientX;
+  lastY = touch.clientY;
+});
+
+canvas.addEventListener("touchend", () => {
+  isDrawing = false;
+});
+
+canvas.addEventListener("touchmove", (event) => {
+  if (!isDrawing) return;
+  const touch = event.touches[0];
+  const x = touch.clientX;
+  const y = touch.clientY;
+  draw(lastX, lastY, x, y);
+  lastX = x;
+  lastY = y;
+});
+
+canvas.addEventListener("mousedown", (event) => {
+  isDrawing = true;
+  lastX = event.clientX;
+  lastY = event.clientY;
+});
+
+canvas.addEventListener("mouseup", () => {
+  isDrawing = false;
+});
+
+canvas.addEventListener("mousemove", (event) => {
+  if (!isDrawing) return;
+  const x = event.clientX;
+  const y = event.clientY;
+  draw(lastX, lastY, x, y);
+  lastX = x;
+  lastY = y;
+});
+
+function draw(x1, y1, x2, y2) {
+  if (isErasing) {
+    ctx.clearRect(x2 - 5, y2 - 5, 10, 10);
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(x1,
+      y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 5;
+    ctx.stroke();
+  }
+}
+    
+    function togglePen() {
+      isErasing = false;
+    }
+    
+    function toggleEraser() {
+      isErasing = true;
+    }
+    
     function saveCanvas() {
       const data = canvas.toDataURL();
-      localStorage.setItem("savedCanvas", data);
+      localStorage.setItem("savedImage", data);
     }
-
+    
     function openCanvas() {
-      const data = localStorage.getItem("savedCanvas");
-      const image = new Image();
-      image.src = data;
-      image.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(image, 0, 0);
+      const data = localStorage.getItem("savedImage");
+      const img = new Image();
+      img.src = data;
+      img.onload = function () {
+        ctx.drawImage(img, 0, 0);
       };
     }
   </script>
