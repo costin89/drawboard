@@ -24,9 +24,6 @@ let isErasing = false;
 let lastX = 0;
 let lastY = 0;
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
 document.getElementById("clearButton").addEventListener("click", () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
